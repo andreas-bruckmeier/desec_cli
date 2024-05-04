@@ -12,9 +12,9 @@ rust-version = "1.77.2"
 [dependencies]
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
 clap = { version = "4.5.4", features = ["derive"] }
-desec_api = { version = "0.3.0", path = "../desec_api" }
 serde_json = "1.0.85"
 env_logger = { version = "0.11.3", optional = true }
+desec_api = "0.3.0"
 
 [features]
 logging = ["dep:env_logger"]
