@@ -1,0 +1,20 @@
+[package]
+name = "desec_cli"
+version = "0.1.0"
+edition = "2021"
+description = "Commandline client for the deSEC DNS API"
+readme = "README.md"
+license = "MIT"
+documentation = "https://docs.rs/desec_cli"
+repository = "https://github.com/andreas-bruckmeier/desec_cli"
+rust-version = "1.77.2"
+
+[dependencies]
+tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
+clap = { version = "4.5.4", features = ["derive"] }
+desec_api = { version = "0.3.0", path = "../desec_api" }
+serde_json = "1.0.85"
+env_logger = { version = "0.11.3", optional = true }
+
+[features]
+logging = ["dep:env_logger"]
