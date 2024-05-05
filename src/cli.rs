@@ -1,8 +1,16 @@
 use clap::{Args, Parser, Subcommand};
+use const_format::concatcp;
+use git_version::git_version;
+
+// Build version string at compile time
+pub const VERSION: &str = concatcp!(
+    env!("CARGO_PKG_VERSION"), " (", git_version!(), ")"
+);
 
 // Top level clap::Command
 #[derive(Parser)]
-#[clap(name = "mycli")]
+#[clap(name = env!("CARGO_PKG_NAME"))]
+#[command(about = "Manage your deSEC accounts from the commandline", long_about = None, version = VERSION)]
 pub struct Cli {
     /// Error messages are suppressed
     #[clap(long, short, global = true, default_value_t = false)]
