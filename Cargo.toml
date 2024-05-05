@@ -15,6 +15,9 @@ clap = { version = "4.5.4", features = ["derive"] }
 serde_json = "1.0.85"
 env_logger = { version = "0.11.3", optional = true }
 desec_api = "0.3.0"
+serde = { version = "1.0.200", features = ["derive"] }
+serde_yaml = { version = "0.9.34", optional = true }
 
 [features]
 logging = ["dep:env_logger"]
+yaml = ["dep:serde_yaml"]

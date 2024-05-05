@@ -1,9 +1,24 @@
 use clap::{Args, Parser, Subcommand};
+use serde::Serialize;
+
+#[derive(
+    clap::ValueEnum, Clone, Default, Debug, Serialize,
+)]
+#[serde(rename_all = "kebab-case")]
+pub enum OutputFormat {
+    #[default]
+    Json,
+    #[cfg(feature = "yaml")]
+    Yaml,
+}
 
 // Top level clap::Command
 #[derive(Parser)]
 #[clap(name = "mycli")]
 pub struct Cli {
+    /// Output format
+    #[clap(long, short, global = true, default_value_t, value_enum)]
+    pub format: OutputFormat,
     /// Error messages are suppressed
     #[clap(long, short, global = true, default_value_t = false)]
     pub quiet: bool,

@@ -2,6 +2,7 @@ use clap::Parser;
 use desec_api::{account, Client, Error};
 use std::env;
 use std::process::ExitCode;
+use serde::Serialize;
 
 mod cli;
 
@@ -47,45 +48,54 @@ async fn main() -> ExitCode {
 
     match &cli.command {
         Command::Account(subcommand) => match &subcommand.command {
-            AccountCommand::Captcha => return get_captcha().await,
-            AccountCommand::Register(args) => return register(args).await,
-            AccountCommand::Login(args) => return login(args).await,
-            AccountCommand::Show => return show_account(&client).await,
+            AccountCommand::Captcha => return get_captcha(&cli).await,
+            AccountCommand::Register(args) => return register(&cli, args).await,
+            AccountCommand::Login(args) => return login(&cli, args).await,
+            AccountCommand::Show => return show_account(&cli, &client).await,
         },
         Command::Domain(args) => match &args.command {
-            DomainCommand::List => return list_domains(&client).await,
-            DomainCommand::Get(args) => return get_domain(&client, args).await,
-            DomainCommand::Create(args) => return create_domain(&client, args).await,
+            DomainCommand::List => return list_domains(&cli, &client).await,
+            DomainCommand::Get(args) => return get_domain(&cli, &client, args).await,
+            DomainCommand::Create(args) => return create_domain(&cli, &client, args).await,
             DomainCommand::Delete(args) => return delete_domain(&client, args).await,
-            DomainCommand::Responsible(args) => return get_domain_responsible(&client, args).await,
+            DomainCommand::Responsible(args) => return get_domain_responsible(&cli, &client, args).await,
             DomainCommand::Export(args) => return export_domain(&client, args).await,
         },
         Command::ResourceRecordSet(subcommand) => match &subcommand.command {
-            ResourceRecordSetCommand::List(args) => return get_all_rrsets(&client, args).await,
-            ResourceRecordSetCommand::Get(args) => return get_rrset(&client, args).await,
-            ResourceRecordSetCommand::Create(args) => return create_rrset(&client, args).await,
+            ResourceRecordSetCommand::List(args) => return get_all_rrsets(&cli, &client, args).await,
+            ResourceRecordSetCommand::Get(args) => return get_rrset(&cli, &client, args).await,
+            ResourceRecordSetCommand::Create(args) => return create_rrset(&cli, &client, args).await,
             ResourceRecordSetCommand::Delete(args) => {
                 return delete_rrset(&cli, &client, args).await
             }
         },
         Command::Token(subcommand) => match &subcommand.command {
-            TokenCommand::List => return list_token(&client).await,
-            TokenCommand::Get(args) => return get_token(&client, args).await,
-            TokenCommand::Create(args) => return create_token(&client, args).await,
+            TokenCommand::List => return list_token(&cli, &client).await,
+            TokenCommand::Get(args) => return get_token(&cli, &client, args).await,
+            TokenCommand::Create(args) => return create_token(&cli, &client, args).await,
             TokenCommand::Delete(args) => return delete_token(&client, args).await,
-            TokenCommand::Patch(args) => return patch_token(&client, args).await,
+            TokenCommand::Patch(args) => return patch_token(&cli, &client, args).await,
         },
         Command::TokenPolicy(subcommand) => match &subcommand.command {
-            TokenPolicyCommand::List(args) => return list_token_policies(&client, args).await,
+            TokenPolicyCommand::List(args) => return list_token_policies(&cli, &client, args).await,
             TokenPolicyCommand::Create(args) => return create_token_policy(&client, args).await,
-            TokenPolicyCommand::Get(args) => return get_token_policy(&client, args).await,
+            TokenPolicyCommand::Get(args) => return get_token_policy(&cli, &client, args).await,
             TokenPolicyCommand::Patch(args) => return patch_token_policy(&client, args).await,
             TokenPolicyCommand::Delete(args) => return delete_token_policy(&client, args).await,
         },
     }
 }
 
-async fn get_captcha() -> ExitCode {
+fn print_formatted<T: Serialize>(arg: T, format: &OutputFormat) {
+    let output = match format {
+        OutputFormat::Json => serde_json::to_string(&arg).expect("Serializing should never fail here"),
+        #[cfg(feature = "yaml")]
+        OutputFormat::Yaml => serde_yaml::to_string(&arg).expect("Serializing should never fail here"),
+    };
+    println!("{output}");
+}
+
+async fn get_captcha(cli: &Cli) -> ExitCode {
     let captcha = match account::get_captcha().await {
         Ok(captcha) => captcha,
         Err(error) => {
@@ -93,15 +103,11 @@ async fn get_captcha() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let captcha_json = match serde_json::to_string(&captcha) {
-        Ok(json) => json,
-        Err(error) => panic!("{}", error),
-    };
-    println!("{captcha_json}");
+    print_formatted(&captcha, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn register(args: &RegisterArgs) -> ExitCode {
+async fn register(cli: &Cli, args: &RegisterArgs) -> ExitCode {
     let account = match account::register(
         &args.email,
         &args.password,
@@ -117,29 +123,21 @@ async fn register(args: &RegisterArgs) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let account_json = match serde_json::to_string(&account) {
-        Ok(json) => json,
-        Err(error) => panic!("{}", error),
-    };
-    println!("{account_json}");
+    print_formatted(&account, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn login(args: &LoginArgs) -> ExitCode {
+async fn login(cli: &Cli, args: &LoginArgs) -> ExitCode {
     let login = match account::login(&args.email, &args.password).await {
         Ok(login) => login,
         Err(Error::ReqwestClientBuilder(e)) => panic!("{e}"),
         _ => unreachable!(),
     };
-    let account_json = match serde_json::to_string(&login) {
-        Ok(json) => json,
-        Err(error) => panic!("{}", error),
-    };
-    println!("{account_json}");
+    print_formatted(&login, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn show_account(client: &Client) -> ExitCode {
+async fn show_account(cli: &Cli, client: &Client) -> ExitCode {
     let account_info = match client.account().get_account_info().await {
         Ok(info) => info,
         Err(_) => {
@@ -147,15 +145,11 @@ async fn show_account(client: &Client) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let account_info_json = match serde_json::to_string(&account_info) {
-        Ok(json) => json,
-        Err(error) => panic!("{}", error),
-    };
-    println!("{account_info_json}");
+    print_formatted(&account_info, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn create_domain(client: &Client, args: &DomainNameArg) -> ExitCode {
+async fn create_domain(cli: &Cli, client: &Client, args: &DomainNameArg) -> ExitCode {
     let domain_name = &args.name;
     let domain = match client.domain().create_domain(domain_name).await {
         Ok(domain) => domain,
@@ -164,18 +158,11 @@ async fn create_domain(client: &Client, args: &DomainNameArg) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let domain_json = match serde_json::to_string(&domain) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize the returned domain: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{domain_json}");
+    print_formatted(&domain, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn list_domains(client: &Client) -> ExitCode {
+async fn list_domains(cli: &Cli, client: &Client) -> ExitCode {
     let domains = match client.domain().get_domains().await {
         Ok(domains) => domains,
         Err(_) => {
@@ -183,15 +170,11 @@ async fn list_domains(client: &Client) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let domains_json = match serde_json::to_string(&domains) {
-        Ok(json) => json,
-        Err(error) => panic!("{}", error),
-    };
-    println!("{domains_json}");
+    print_formatted(&domains, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn get_domain(client: &Client, args: &DomainNameArg) -> ExitCode {
+async fn get_domain(cli: &Cli, client: &Client, args: &DomainNameArg) -> ExitCode {
     let domain_name = &args.name;
     let domain = match client.domain().get_domain(domain_name).await {
         Ok(domain) => domain,
@@ -207,18 +190,11 @@ async fn get_domain(client: &Client, args: &DomainNameArg) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let domain_json = match serde_json::to_string(&domain) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize the data: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{domain_json}");
+    print_formatted(&domain, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn get_domain_responsible(client: &Client, args: &DomainNameArg) -> ExitCode {
+async fn get_domain_responsible(cli: &Cli, client: &Client, args: &DomainNameArg) -> ExitCode {
     let domain_name = &args.name;
     let domain = match client.domain().get_owning_domain(domain_name).await {
         Ok(domain) => domain,
@@ -234,14 +210,7 @@ async fn get_domain_responsible(client: &Client, args: &DomainNameArg) -> ExitCo
             return ExitCode::FAILURE;
         }
     };
-    let domain_json = match serde_json::to_string(&domain) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize the data: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{domain_json}");
+    print_formatted(&domain, &cli.format);
     ExitCode::SUCCESS
 }
 
@@ -273,7 +242,7 @@ async fn delete_domain(client: &Client, args: &DomainNameArg) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-async fn create_rrset(client: &Client, args: &ResourceRecordSetCreateArgs) -> ExitCode {
+async fn create_rrset(cli: &Cli, client: &Client, args: &ResourceRecordSetCreateArgs) -> ExitCode {
     let subname = if args.subname == "@" {
         None
     } else {
@@ -297,18 +266,10 @@ async fn create_rrset(client: &Client, args: &ResourceRecordSetCreateArgs) -> Ex
             return ExitCode::FAILURE;
         }
     };
-    let rrset_json = match serde_json::to_string(&rrset) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize the data: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{rrset_json}");
-
+    print_formatted(&rrset, &cli.format);
     ExitCode::SUCCESS
 }
-async fn get_rrset(client: &Client, args: &ResourceRecordSetGetArgs) -> ExitCode {
+async fn get_rrset(cli: &Cli, client: &Client, args: &ResourceRecordSetGetArgs) -> ExitCode {
     let subname = if args.subname == "@" {
         None
     } else {
@@ -332,18 +293,11 @@ async fn get_rrset(client: &Client, args: &ResourceRecordSetGetArgs) -> ExitCode
             return ExitCode::FAILURE;
         }
     };
-    let rrset_json = match serde_json::to_string(&rrset) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize the data: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{rrset_json}");
+    print_formatted(&rrset, &cli.format);
     ExitCode::SUCCESS
 }
 
-async fn get_all_rrsets(client: &Client, args: &ResourceRecordSetListArgs) -> ExitCode {
+async fn get_all_rrsets(cli: &Cli, client: &Client, args: &ResourceRecordSetListArgs) -> ExitCode {
     let rrset = match client.rrset().get_rrsets(&args.name).await {
         Ok(rrset) => rrset,
         Err(Error::NotFound) => {
@@ -358,14 +312,7 @@ async fn get_all_rrsets(client: &Client, args: &ResourceRecordSetListArgs) -> Ex
             return ExitCode::FAILURE;
         }
     };
-    let rrset_json = match serde_json::to_string(&rrset) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize the data: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{rrset_json}");
+    print_formatted(&rrset, &cli.format);
     ExitCode::default()
 }
 
@@ -410,7 +357,7 @@ async fn delete_rrset(cli: &Cli, client: &Client, args: &ResourceRecordSetDelete
     ExitCode::default()
 }
 
-async fn list_token(client: &Client) -> ExitCode {
+async fn list_token(cli: &Cli, client: &Client) -> ExitCode {
     let tokens = match client.token().list().await {
         Ok(rrset) => rrset,
         Err(error) => {
@@ -418,18 +365,11 @@ async fn list_token(client: &Client) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let tokens_json = match serde_json::to_string(&tokens) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize tokin list: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{tokens_json}");
+    print_formatted(&tokens, &cli.format);
     ExitCode::default()
 }
 
-async fn get_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
+async fn get_token(cli: &Cli, client: &Client, args: &TokenIdArgs) -> ExitCode {
     let tokens = match client.token().get(&args.token_id).await {
         Ok(rrset) => rrset,
         Err(error) => {
@@ -437,18 +377,11 @@ async fn get_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let tokens_json = match serde_json::to_string(&tokens) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize tokin list: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{tokens_json}");
+    print_formatted(&tokens, &cli.format);
     ExitCode::default()
 }
 
-async fn create_token(client: &Client, args: &TokenCreateArgs) -> ExitCode {
+async fn create_token(cli: &Cli, client: &Client, args: &TokenCreateArgs) -> ExitCode {
     let tokens = match client
         .token()
         .create(
@@ -466,18 +399,11 @@ async fn create_token(client: &Client, args: &TokenCreateArgs) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let tokens_json = match serde_json::to_string(&tokens) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize tokin list: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{tokens_json}");
+    print_formatted(&tokens, &cli.format);
     ExitCode::default()
 }
 
-async fn patch_token(client: &Client, args: &TokenPatchArgs) -> ExitCode {
+async fn patch_token(cli: &Cli, client: &Client, args: &TokenPatchArgs) -> ExitCode {
     let tokens = match client
         .token()
         .patch(
@@ -496,14 +422,7 @@ async fn patch_token(client: &Client, args: &TokenPatchArgs) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    let tokens_json = match serde_json::to_string(&tokens) {
-        Ok(json) => json,
-        Err(error) => {
-            eprintln!("Failed to serialize tokin list: {error}");
-            return ExitCode::FAILURE;
-        }
-    };
-    println!("{tokens_json}");
+    print_formatted(&tokens, &cli.format);
     ExitCode::default()
 }
 
@@ -518,15 +437,9 @@ async fn delete_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
     ExitCode::default()
 }
 
-async fn get_token_policy(client: &Client, args: &TokenPolicyGetArgs) -> ExitCode {
+async fn get_token_policy(cli: &Cli, client: &Client, args: &TokenPolicyGetArgs) -> ExitCode {
     match client.token().get_policy(&args.token_id, &args.policy_id).await {
-        Ok(response) => match serde_json::to_string(&response) {
-            Ok(json) => println!("{json}"),
-            Err(error) => {
-                eprintln!("Failed to serialize tokin policy: {error}");
-                return ExitCode::FAILURE;
-            }
-        },
+        Ok(response) => print_formatted(&response, &cli.format),
         Err(error) => {
             eprintln!("Failed to get token policy: {}", error);
             return ExitCode::FAILURE;
@@ -535,15 +448,9 @@ async fn get_token_policy(client: &Client, args: &TokenPolicyGetArgs) -> ExitCod
     ExitCode::default()
 }
 
-async fn list_token_policies(client: &Client, args: &TokenPolicyListArgs) -> ExitCode {
+async fn list_token_policies(cli: &Cli, client: &Client, args: &TokenPolicyListArgs) -> ExitCode {
     match client.token().list_policies(&args.token_id).await {
-        Ok(response) => match serde_json::to_string(&response) {
-            Ok(json) => println!("{json}"),
-            Err(error) => {
-                eprintln!("Failed to serialize tokin policy list: {error}");
-                return ExitCode::FAILURE;
-            }
-        },
+        Ok(response) => print_formatted(&response, &cli.format),
         Err(error) => {
             eprintln!("Failed to get list of token policies: {}", error);
             return ExitCode::FAILURE;
