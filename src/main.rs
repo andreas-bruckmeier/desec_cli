@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use desec_api::{account, Client, Error};
 use std::env;
 use std::process::ExitCode;
@@ -13,6 +13,13 @@ async fn main() -> ExitCode {
     env_logger::init();
 
     let cli = Cli::parse();
+
+    if let Some(generator) = cli.generator {
+        let mut cmd = Cli::command();
+        eprintln!("Generating completion file for {generator:?}...");
+        print_completions(generator, &mut cmd);
+        return ExitCode::SUCCESS;
+    }
 
     // Create a new client from either a token from env var DESEC_API_TOKEN
     // or from credentials in env vars DESEC_EMAIL & DESEC_PASSWORD.
@@ -45,14 +52,18 @@ async fn main() -> ExitCode {
 
     client.set_retry(!cli.no_retry);
 
-    match &cli.command {
-        Command::Account(subcommand) => match &subcommand.command {
+    if cli.command.is_none() {
+        return ExitCode::SUCCESS;
+    }
+
+    match cli.command.as_ref().unwrap() {
+        Commands::Account(subcommand) => match &subcommand.command {
             AccountCommand::Captcha => return get_captcha().await,
             AccountCommand::Register(args) => return register(args).await,
             AccountCommand::Login(args) => return login(args).await,
             AccountCommand::Show => return show_account(&client).await,
         },
-        Command::Domain(args) => match &args.command {
+        Commands::Domain(args) => match &args.command {
             DomainCommand::List => return list_domains(&client).await,
             DomainCommand::Get(args) => return get_domain(&client, args).await,
             DomainCommand::Create(args) => return create_domain(&client, args).await,
@@ -60,7 +71,7 @@ async fn main() -> ExitCode {
             DomainCommand::Responsible(args) => return get_domain_responsible(&client, args).await,
             DomainCommand::Export(args) => return export_domain(&client, args).await,
         },
-        Command::ResourceRecordSet(subcommand) => match &subcommand.command {
+        Commands::ResourceRecordSet(subcommand) => match &subcommand.command {
             ResourceRecordSetCommand::List(args) => return get_all_rrsets(&client, args).await,
             ResourceRecordSetCommand::Get(args) => return get_rrset(&client, args).await,
             ResourceRecordSetCommand::Create(args) => return create_rrset(&client, args).await,
@@ -68,14 +79,14 @@ async fn main() -> ExitCode {
                 return delete_rrset(&cli, &client, args).await
             }
         },
-        Command::Token(subcommand) => match &subcommand.command {
+        Commands::Token(subcommand) => match &subcommand.command {
             TokenCommand::List => return list_token(&client).await,
             TokenCommand::Get(args) => return get_token(&client, args).await,
             TokenCommand::Create(args) => return create_token(&client, args).await,
             TokenCommand::Delete(args) => return delete_token(&client, args).await,
             TokenCommand::Patch(args) => return patch_token(&client, args).await,
         },
-        Command::TokenPolicy(subcommand) => match &subcommand.command {
+        Commands::TokenPolicy(subcommand) => match &subcommand.command {
             TokenPolicyCommand::List(args) => return list_token_policies(&client, args).await,
             TokenPolicyCommand::Create(args) => return create_token_policy(&client, args).await,
             TokenPolicyCommand::Get(args) => return get_token_policy(&client, args).await,
