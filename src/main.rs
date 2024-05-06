@@ -366,7 +366,7 @@ async fn get_all_rrsets(client: &Client, args: &ResourceRecordSetListArgs) -> Ex
         }
     };
     println!("{rrset_json}");
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn delete_rrset(cli: &Cli, client: &Client, args: &ResourceRecordSetDeleteArgs) -> ExitCode {
@@ -407,7 +407,7 @@ async fn delete_rrset(cli: &Cli, client: &Client, args: &ResourceRecordSetDelete
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn list_token(client: &Client) -> ExitCode {
@@ -426,7 +426,7 @@ async fn list_token(client: &Client) -> ExitCode {
         }
     };
     println!("{tokens_json}");
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn get_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
@@ -445,7 +445,7 @@ async fn get_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
         }
     };
     println!("{tokens_json}");
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn create_token(client: &Client, args: &TokenCreateArgs) -> ExitCode {
@@ -474,7 +474,7 @@ async fn create_token(client: &Client, args: &TokenCreateArgs) -> ExitCode {
         }
     };
     println!("{tokens_json}");
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn patch_token(client: &Client, args: &TokenPatchArgs) -> ExitCode {
@@ -504,7 +504,7 @@ async fn patch_token(client: &Client, args: &TokenPatchArgs) -> ExitCode {
         }
     };
     println!("{tokens_json}");
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn delete_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
@@ -515,7 +515,7 @@ async fn delete_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn get_token_policy(client: &Client, args: &TokenPolicyGetArgs) -> ExitCode {
@@ -532,7 +532,7 @@ async fn get_token_policy(client: &Client, args: &TokenPolicyGetArgs) -> ExitCod
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn list_token_policies(client: &Client, args: &TokenPolicyListArgs) -> ExitCode {
@@ -549,7 +549,7 @@ async fn list_token_policies(client: &Client, args: &TokenPolicyListArgs) -> Exi
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn create_token_policy(client: &Client, args: &TokenPolicyCreateArgs) -> ExitCode {
@@ -570,7 +570,7 @@ async fn create_token_policy(client: &Client, args: &TokenPolicyCreateArgs) -> E
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn patch_token_policy(client: &Client, args: &TokenPolicyPatchArgs) -> ExitCode {
@@ -592,7 +592,7 @@ async fn patch_token_policy(client: &Client, args: &TokenPolicyPatchArgs) -> Exi
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
 
 async fn delete_token_policy(client: &Client, args: &TokenPolicyDeleteArgs) -> ExitCode {
@@ -607,5 +607,5 @@ async fn delete_token_policy(client: &Client, args: &TokenPolicyDeleteArgs) -> E
             return ExitCode::FAILURE;
         }
     };
-    ExitCode::default()
+    ExitCode::SUCCESS
 }
