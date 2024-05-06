@@ -1,6 +1,6 @@
 [package]
 name = "desec_cli"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Andreas Bruckmeier"]
 description = "Commandline client for the deSEC DNS API"
@@ -8,7 +8,7 @@ readme = "README.md"
 license = "MIT"
 documentation = "https://docs.rs/desec_cli"
 repository = "https://github.com/andreas-bruckmeier/desec_cli"
-rust-version = "1.77.2"
+rust-version = "1.74.1"
 
 [dependencies]
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
