@@ -286,7 +286,7 @@ pub struct TokenPolicyGetArgs {
     /// Id of the token to get a policy for
     pub token_id: String,
     /// Id of the policy to get. If missing, the default policy is returned.
-    pub policy_id: String
+    pub policy_id: String,
 }
 
 #[derive(Args, Clone)]

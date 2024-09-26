@@ -519,7 +519,11 @@ async fn delete_token(client: &Client, args: &TokenIdArgs) -> ExitCode {
 }
 
 async fn get_token_policy(client: &Client, args: &TokenPolicyGetArgs) -> ExitCode {
-    match client.token().get_policy(&args.token_id, &args.policy_id).await {
+    match client
+        .token()
+        .get_policy(&args.token_id, &args.policy_id)
+        .await
+    {
         Ok(response) => match serde_json::to_string(&response) {
             Ok(json) => println!("{json}"),
             Err(error) => {
