@@ -1,5 +1,13 @@
 # Changelog
 
+## desec_api 0.1.3 (2024-09-26)
+
+### Added
+
+### Changed
+
+- Bump desec_api to version 0.3.3
+
 ## desec_api 0.1.2 (2024-05-06)
 
 ### Added

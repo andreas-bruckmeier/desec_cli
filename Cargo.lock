@@ -216,9 +216,9 @@ checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
 name = "desec_api"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "346f9da6a98138cfc65d34ef5aecda8b1b791bcd0c4b0ce0deea8fe0e853ff64"
+checksum = "e4817c9d9e6925c19ee0bf57893001226765cc2aabb1e2f346954ccab151c956"
 dependencies = [
  "const_format",
  "log",
