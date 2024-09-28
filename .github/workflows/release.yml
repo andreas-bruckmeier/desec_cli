@@ -188,7 +188,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: ./${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
+          asset_path: .
           asset_name: ${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
           asset_content_type: application/octet-stream
       - uses: actions/upload-release-asset@v1
@@ -196,7 +196,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: ./${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
+          asset_path: .
           asset_name: ${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
           asset_content_type: application/octet-stream
       - uses: actions/upload-release-asset@v1
@@ -204,6 +204,6 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: ./${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc.exe
+          asset_path: .
           asset_name:  ${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc.exe
           asset_content_type: application/octet-stream
