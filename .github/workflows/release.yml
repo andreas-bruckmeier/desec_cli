@@ -148,7 +148,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{env.REPOSITORY_NAME}}-${{ matrix.target }}
-          path: ./target/release/${{env.REPOSITORY_NAME}}-${{ matrix.target }}${{ matrix.suffix }}
+          path: ./target/release/${{env.REPOSITORY_NAME}}${{ matrix.suffix }}
   release:
     needs:
       - build
@@ -163,12 +163,15 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: ${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
+          path: x86_64-unknown-linux-gnu
       - uses: actions/download-artifact@v4
         with:
           name: ${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
+          path: x86_64-apple-darwin
       - uses: actions/download-artifact@v4
         with:
           name: ${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
+          path: x86_64-pc-windows-msvc
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -191,7 +194,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: ./${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
+          asset_path: ./x86_64-pc-windows-msvc/${{env.REPOSITORY_NAME}}
           asset_name: ${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
           asset_content_type: application/octet-stream
       - uses: actions/upload-release-asset@v1
@@ -199,7 +202,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: ./${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
+          asset_path: ./x86_64-apple-darwin/${{env.REPOSITORY_NAME}}
           asset_name: ${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
           asset_content_type: application/octet-stream
       - uses: actions/upload-release-asset@v1
@@ -207,6 +210,6 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
-          asset_path: ./${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc.exe
+          asset_path: ./x86_64-pc-windows-msvc/${{env.REPOSITORY_NAME}}
           asset_name:  ${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc.exe
           asset_content_type: application/octet-stream
