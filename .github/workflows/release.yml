@@ -211,5 +211,5 @@ jobs:
         with:
           upload_url: '${{ steps.create_release.outputs.upload_url }}'
           asset_path: ./x86_64-pc-windows-msvc/${{env.REPOSITORY_NAME}}.exe
-          asset_name:  ${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc.exe
+          asset_name:  ${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
           asset_content_type: application/octet-stream
