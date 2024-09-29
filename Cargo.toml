@@ -1,6 +1,6 @@
 [package]
 name = "desec_cli"
-version = "0.1.4"
+version = "0.2.0"
 edition = "2021"
 authors = ["Andreas Bruckmeier"]
 description = "Commandline client for the deSEC DNS API"
@@ -16,6 +16,7 @@ clap = { version = "4.5.4", features = ["derive"] }
 serde_json = "1.0.85"
 env_logger = { version = "0.11.3", optional = true }
 desec_api = "0.3.3"
+clap_complete = "4.5.29"
 
 [features]
 logging = ["dep:env_logger"]

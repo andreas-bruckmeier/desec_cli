@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use desec_api::{account, Client, Error};
 use std::env;
 use std::process::ExitCode;
@@ -13,6 +13,13 @@ async fn main() -> ExitCode {
     env_logger::init();
 
     let cli = Cli::parse();
+
+    if let Some(generator) = cli.generator {
+        let mut cmd = Cli::command();
+        eprintln!("Generating completion file for {generator:?}...");
+        print_completions(generator, &mut cmd);
+        return ExitCode::SUCCESS;
+    }
 
     // Create a new client from either a token from env var DESEC_API_TOKEN
     // or from credentials in env vars DESEC_EMAIL & DESEC_PASSWORD.
@@ -45,7 +52,11 @@ async fn main() -> ExitCode {
 
     client.set_retry(!cli.no_retry);
 
-    match &cli.command {
+    if cli.command.is_none() {
+        return ExitCode::SUCCESS;
+    }
+
+    match cli.command.as_ref().unwrap() {
         Command::Account(subcommand) => match &subcommand.command {
             AccountCommand::Captcha => return get_captcha().await,
             AccountCommand::Register(args) => return register(args).await,
