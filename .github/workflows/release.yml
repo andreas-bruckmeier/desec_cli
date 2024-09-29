@@ -172,11 +172,6 @@ jobs:
         with:
           name: ${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
           path: x86_64-pc-windows-msvc
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
       - id: create_release
         uses: actions/create-release@v1
         env:
@@ -186,8 +181,8 @@ jobs:
           release_name: 'Release ${{ github.ref_name }}'
           draft: false
           prerelease: false
-      - id: debug_release_artifacts
-        run: ls -la
+      - id: strip_linux
+        run: strip ./x86_64-unknown-linux-gnu/${{env.REPOSITORY_NAME}}
         shell: bash
       - uses: actions/upload-release-asset@v1
         env:
