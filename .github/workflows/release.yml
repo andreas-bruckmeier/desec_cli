@@ -148,7 +148,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{env.REPOSITORY_NAME}}-${{ matrix.target }}
-          path: ./target/release/${{env.REPOSITORY_NAME}}${{ matrix.suffix }}
+          path: ./target/release/${{env.REPOSITORY_NAME}}-${{ matrix.target }}${{ matrix.suffix }}
   release:
     needs:
       - build
