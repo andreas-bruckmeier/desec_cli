@@ -1,8 +1,11 @@
 use clap::{Args, Parser, Subcommand};
+use clap_complete::{generate, Generator, Shell};
+use std::io;
 
 // Top level clap::Command
 #[derive(Parser)]
 #[clap(name = "mycli")]
+#[command(name = "desec_cli")]
 pub struct Cli {
     /// Error messages are suppressed
     #[clap(long, short, global = true, default_value_t = false)]
@@ -16,12 +19,19 @@ pub struct Cli {
     /// Maximum number of retries per request
     #[clap(long, global = true, required = false)]
     pub max_retries: Option<usize>,
+    /// Generates completion for given shell
+    #[arg(long = "generate", value_enum)]
+    pub generator: Option<Shell>,
     // Subcommands
     // You can only have one subcommand section
     // so we point this to the Commands struct
-    #[structopt(subcommand)]
-    pub command: Command,
+    #[command(subcommand)]
+    pub command: Option<Command>,
     // Add global-level flags here
+}
+
+pub fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
 
 // Second tier of commands -  clap::Subcommand

@@ -1,5 +1,17 @@
 # Changelog
 
+## desec_cli 0.2.0 (2024-09-29)
+
+### Added
+
+- Completion generator for various shells
+
+### Changed
+
+- Bumped dep versions
+
+### Fixed
+
 ## desec_cli 0.1.4 (2024-09-26)
 
 ### Added
