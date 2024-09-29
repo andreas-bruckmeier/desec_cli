@@ -183,7 +183,7 @@ jobs:
           release_name: 'Release ${{ github.ref_name }}'
           draft: false
           prerelease: false
-      - id: debug release artifacts
+      - id: debug_release_artifacts
         run: ls -la
         shell: bash
       - uses: actions/upload-release-asset@v1
