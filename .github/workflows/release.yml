@@ -182,8 +182,12 @@ jobs:
         run: strip ./x86_64-unknown-linux-gnu/${{env.REPOSITORY_NAME}}
         shell: bash
 
+      - id: generate_changelog
+        run: sed -n '/## desec_cli '${{ github.ref_name }}'/,/## desec_cli/{//!p}' CHANGELOG.md > gh-workflow-changes.txt
+        shell: bash
+
       - name: create_release
-        run: gh release create v${{ github.ref_name }} --title 'Release ${{ github.ref_name }}'
+        run: gh release create v${{ github.ref_name }} --title 'Release ${{ github.ref_name }}' --notes-file gh-workflow-changes.txt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
