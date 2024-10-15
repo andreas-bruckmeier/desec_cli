@@ -186,15 +186,15 @@ jobs:
         run: sed -n '/## desec_cli '${{ github.ref_name }}'/,/## desec_cli/{//!p}' CHANGELOG.md > gh-workflow-changes.txt
         shell: bash
 
-      - id: rename_artifacts
+      - id: rename_artifact_x86_64-unknown-linux-gnu
         run: mv ./x86_64-unknown-linux-gnu/${{env.REPOSITORY_NAME}} ./${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
         shell: bash
 
-      - id: rename_artifacts
+      - id: rename_artifact_x86_64-apple-darwin
         run: mv ./x86_64-apple-darwin/${{env.REPOSITORY_NAME}} ./${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
         shell: bash
 
-      - id: rename_artifacts
+      - id: rename_artifact_x86_64-pc-windows-msvc
         run: mv ./x86_64-pc-windows-msvc/${{env.REPOSITORY_NAME}}.exe ./${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
         shell: bash
 
