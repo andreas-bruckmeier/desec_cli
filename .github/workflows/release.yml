@@ -186,22 +186,34 @@ jobs:
         run: sed -n '/## desec_cli '${{ github.ref_name }}'/,/## desec_cli/{//!p}' CHANGELOG.md > gh-workflow-changes.txt
         shell: bash
 
+      - id: rename_artifacts
+        run: mv ./x86_64-unknown-linux-gnu/${{env.REPOSITORY_NAME}} ./${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
+        shell: bash
+
+      - id: rename_artifacts
+        run: mv ./x86_64-apple-darwin/${{env.REPOSITORY_NAME}} ./${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
+        shell: bash
+
+      - id: rename_artifacts
+        run: mv ./x86_64-pc-windows-msvc/${{env.REPOSITORY_NAME}}.exe ./${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
+        shell: bash
+
       - name: create_release
         run: gh release create v${{ github.ref_name }} --title 'Release ${{ github.ref_name }}' --notes-file gh-workflow-changes.txt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload_x86_64-unknown-linux-gnu
-        run: gh release upload v${{ github.ref_name }} ./x86_64-unknown-linux-gnu/${{env.REPOSITORY_NAME}}#${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
+        run: gh release upload v${{ github.ref_name }} ./${{env.REPOSITORY_NAME}}-x86_64-unknown-linux-gnu
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload_x86_64-apple-darwin
-        run: gh release upload v${{ github.ref_name }} ./x86_64-apple-darwin/${{env.REPOSITORY_NAME}}#${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
+        run: gh release upload v${{ github.ref_name }} ./${{env.REPOSITORY_NAME}}-x86_64-apple-darwin
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload_x86_64-pc-windows-msvc
-        run: gh release upload v${{ github.ref_name }} ./x86_64-pc-windows-msvc/${{env.REPOSITORY_NAME}}.exe#${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
+        run: gh release upload v${{ github.ref_name }} ./${{env.REPOSITORY_NAME}}-x86_64-pc-windows-msvc
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
