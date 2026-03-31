@@ -1,10 +1,16 @@
 # Changelog
 
-## desec_cli 0.2.1 (2026-03-31)
+## desec_cli 0.2.2 (2026-03-31)
 
 ### Changed
 
 - Bumped dep versions
+
+## desec_cli 0.2.1 (2024-12-29)
+
+### Changed
+
+- Update to desec_api 0.4.0, bump dep versions
 
 ## desec_cli 0.2.0 (2024-09-29)
 
