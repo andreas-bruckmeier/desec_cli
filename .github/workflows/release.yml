@@ -145,7 +145,7 @@ jobs:
         with:
           command: build
           args: '--release'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{env.REPOSITORY_NAME}}-${{ matrix.target }}
           path: ./target/release/${{env.REPOSITORY_NAME}}${{ matrix.suffix }}
