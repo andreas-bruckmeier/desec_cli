@@ -21,9 +21,193 @@ async fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
+    if cli.command.is_none() {
+        let mut cmd = Cli::command();
+        cmd.print_help().expect("failed to print help");
+        println!();
+        return ExitCode::SUCCESS;
+    }
+
+    match cli.command.as_ref().unwrap() {
+        Command::Account(subcommand) => match &subcommand.command {
+            AccountCommand::Captcha => return get_captcha().await,
+            AccountCommand::Register(args) => return register(args).await,
+            AccountCommand::Login(args) => return login(args).await,
+            AccountCommand::RequestPasswordReset(args) => {
+                return request_password_reset(args).await
+            }
+            AccountCommand::ConfirmPasswordReset(args) => {
+                return confirm_password_reset(args).await
+            }
+            AccountCommand::UpdateOutreachPreference(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return update_outreach_preference(&client, args).await;
+            }
+            AccountCommand::Show => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return show_account(&client).await;
+            }
+        },
+        Command::Domain(args) => match &args.command {
+            DomainCommand::List => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return list_domains(&client).await;
+            }
+            DomainCommand::Get(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return get_domain(&client, args).await;
+            }
+            DomainCommand::Create(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return create_domain(&client, args).await;
+            }
+            DomainCommand::Delete(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return delete_domain(&client, args).await;
+            }
+            DomainCommand::Responsible(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return get_domain_responsible(&client, args).await;
+            }
+            DomainCommand::Export(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return export_domain(&client, args).await;
+            }
+        },
+        Command::ResourceRecordSet(subcommand) => match &subcommand.command {
+            ResourceRecordSetCommand::List(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return get_all_rrsets(&client, args).await;
+            }
+            ResourceRecordSetCommand::Get(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return get_rrset(&client, args).await;
+            }
+            ResourceRecordSetCommand::Create(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return create_rrset(&client, args).await;
+            }
+            ResourceRecordSetCommand::Delete(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return delete_rrset(&cli, &client, args).await;
+            }
+        },
+        Command::Token(subcommand) => match &subcommand.command {
+            TokenCommand::List => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return list_token(&client).await;
+            }
+            TokenCommand::Get(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return get_token(&client, args).await;
+            }
+            TokenCommand::Create(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return create_token(&client, args).await;
+            }
+            TokenCommand::Delete(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return delete_token(&client, args).await;
+            }
+            TokenCommand::Patch(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return patch_token(&client, args).await;
+            }
+        },
+        Command::TokenPolicy(subcommand) => match &subcommand.command {
+            TokenPolicyCommand::List(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return list_token_policies(&client, args).await;
+            }
+            TokenPolicyCommand::Create(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return create_token_policy(&client, args).await;
+            }
+            TokenPolicyCommand::Get(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return get_token_policy(&client, args).await;
+            }
+            TokenPolicyCommand::Patch(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return patch_token_policy(&client, args).await;
+            }
+            TokenPolicyCommand::Delete(args) => {
+                let client = match create_client(&cli).await {
+                    Some(client) => client,
+                    None => return ExitCode::FAILURE,
+                };
+                return delete_token_policy(&client, args).await;
+            }
+        },
+    }
+}
+
+async fn create_client(cli: &Cli) -> Option<Client> {
     // Create a new client from either a token from env var DESEC_API_TOKEN
     // or from credentials in env vars DESEC_EMAIL & DESEC_PASSWORD.
-    // If we have neither a token nor credentials, we abort.
     let mut client = if let Ok(token) = env::var("DESEC_API_TOKEN") {
         match Client::new(token) {
             Ok(c) => c,
@@ -39,7 +223,7 @@ async fn main() -> ExitCode {
         }
     } else {
         eprintln!("Missing env var TOKEN_ENV_VAR");
-        return ExitCode::FAILURE;
+        return None;
     };
 
     if let Some(max_retries) = cli.max_retries {
@@ -52,48 +236,7 @@ async fn main() -> ExitCode {
 
     client.set_retry(!cli.no_retry);
 
-    if cli.command.is_none() {
-        return ExitCode::SUCCESS;
-    }
-
-    match cli.command.as_ref().unwrap() {
-        Command::Account(subcommand) => match &subcommand.command {
-            AccountCommand::Captcha => return get_captcha().await,
-            AccountCommand::Register(args) => return register(args).await,
-            AccountCommand::Login(args) => return login(args).await,
-            AccountCommand::Show => return show_account(&client).await,
-        },
-        Command::Domain(args) => match &args.command {
-            DomainCommand::List => return list_domains(&client).await,
-            DomainCommand::Get(args) => return get_domain(&client, args).await,
-            DomainCommand::Create(args) => return create_domain(&client, args).await,
-            DomainCommand::Delete(args) => return delete_domain(&client, args).await,
-            DomainCommand::Responsible(args) => return get_domain_responsible(&client, args).await,
-            DomainCommand::Export(args) => return export_domain(&client, args).await,
-        },
-        Command::ResourceRecordSet(subcommand) => match &subcommand.command {
-            ResourceRecordSetCommand::List(args) => return get_all_rrsets(&client, args).await,
-            ResourceRecordSetCommand::Get(args) => return get_rrset(&client, args).await,
-            ResourceRecordSetCommand::Create(args) => return create_rrset(&client, args).await,
-            ResourceRecordSetCommand::Delete(args) => {
-                return delete_rrset(&cli, &client, args).await
-            }
-        },
-        Command::Token(subcommand) => match &subcommand.command {
-            TokenCommand::List => return list_token(&client).await,
-            TokenCommand::Get(args) => return get_token(&client, args).await,
-            TokenCommand::Create(args) => return create_token(&client, args).await,
-            TokenCommand::Delete(args) => return delete_token(&client, args).await,
-            TokenCommand::Patch(args) => return patch_token(&client, args).await,
-        },
-        Command::TokenPolicy(subcommand) => match &subcommand.command {
-            TokenPolicyCommand::List(args) => return list_token_policies(&client, args).await,
-            TokenPolicyCommand::Create(args) => return create_token_policy(&client, args).await,
-            TokenPolicyCommand::Get(args) => return get_token_policy(&client, args).await,
-            TokenPolicyCommand::Patch(args) => return patch_token_policy(&client, args).await,
-            TokenPolicyCommand::Delete(args) => return delete_token_policy(&client, args).await,
-        },
-    }
+    Some(client)
 }
 
 async fn get_captcha() -> ExitCode {
@@ -147,6 +290,82 @@ async fn login(args: &LoginArgs) -> ExitCode {
         Err(error) => panic!("{}", error),
     };
     println!("{account_json}");
+    ExitCode::SUCCESS
+}
+
+async fn request_password_reset(args: &RequestPasswordResetArgs) -> ExitCode {
+    match account::request_password_reset(&args.email, &args.captcha_id, &args.captcha_solution)
+        .await
+    {
+        Ok(_) => {
+            println!("You should receive an email in your mailbox {} if such an account exists", &args.email);
+        }
+        Err(Error::ReqwestClientBuilder(e)) => {
+            eprintln!("Failed to build the request: {e}");
+            return ExitCode::FAILURE
+
+        }
+        Err(Error::ApiError(e, m)) => {
+            eprintln!("The API responded with error: {e} {m}");
+            return ExitCode::FAILURE
+        }
+        Err(e) => {
+            eprintln!("An unexpected error occurred: {e}");
+            return ExitCode::FAILURE
+        }
+    }
+    ExitCode::SUCCESS
+}
+
+async fn confirm_password_reset(args: &ConfirmPasswordResetArgs) -> ExitCode {
+    match account::confirm_password_reset(&args.password, &args.code)
+        .await
+    {
+        Ok(_) => {
+            println!("Your password has successfully been set to the given password");
+        }
+        Err(Error::ReqwestClientBuilder(e)) => {
+            eprintln!("Failed to build the request: {e}");
+            return ExitCode::FAILURE
+
+        }
+        Err(Error::ApiError(e, m)) => {
+            eprintln!("The API responded with error: {e} {m}");
+            return ExitCode::FAILURE
+        }
+        Err(e) => {
+            eprintln!("An unexpected error occurred: {e}");
+            return ExitCode::FAILURE
+        }
+    }
+    ExitCode::SUCCESS
+}
+
+async fn update_outreach_preference(client: &Client, args: &UpdateOutreachPreferenceArgs) -> ExitCode {
+    let account_info = match client.account().update_outreach_preference(args.outreach_preference).await {
+        Ok(info) => info,
+        Err(Error::ReqwestClientBuilder(e)) => {
+            eprintln!("Failed to build the request: {e}");
+            return ExitCode::FAILURE
+
+        }
+        Err(Error::ApiError(e, m)) => {
+            eprintln!("The API responded with error: {e} {m}");
+            return ExitCode::FAILURE
+        }
+        Err(e) => {
+            eprintln!("An unexpected error occurred: {e}");
+            return ExitCode::FAILURE
+        }
+    };
+    let account_info_json = match serde_json::to_string(&account_info) {
+        Ok(json) => json,
+        Err(error) => {
+            eprintln!("Failed to parse the API response: {error}");
+            return ExitCode::FAILURE
+        }
+    };
+    println!("{account_info_json}");
     ExitCode::SUCCESS
 }
 

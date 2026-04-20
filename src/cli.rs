@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand};
+use clap::{ArgAction, Args, Parser, Subcommand};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
@@ -104,6 +104,13 @@ pub enum AccountCommand {
     Register(RegisterArgs),
     /// Login
     Login(LoginArgs),
+    /// Request a password Reset
+    RequestPasswordReset(RequestPasswordResetArgs),
+    /// Confirm a password Reset
+    ConfirmPasswordReset(ConfirmPasswordResetArgs),
+    /// Update the outreach preference
+    /// Whether the user is okay with us reaching out by email to inform about developments at deSEC (no ads).
+    UpdateOutreachPreference(UpdateOutreachPreferenceArgs),
 }
 
 // The command enum for the 'domain' command
@@ -182,6 +189,39 @@ pub struct LoginArgs {
     /// The password usede to login
     #[clap(index = 2)]
     pub password: String,
+}
+
+// The final clap::Args struct for the account request password reset command
+#[derive(Args, Clone)]
+pub struct RequestPasswordResetArgs {
+    /// The email address for which to reset the password
+    #[clap(index = 1)]
+    pub email: String,
+    /// The id of a solved captcha
+    #[clap(index = 2)]
+    pub captcha_id: String,
+    /// The solution of a solved captcha
+    #[clap(index = 3)]
+    pub captcha_solution: String,
+}
+
+// The final clap::Args struct for the account confirm password reset command
+#[derive(Args, Clone)]
+pub struct ConfirmPasswordResetArgs {
+    /// The confirmation code sent via email
+    #[clap(index = 1)]
+    pub code: String,
+    /// The new password for the account
+    #[clap(index = 2)]
+    pub password: String,
+}
+
+// The final clap::Args struct for the update outreach preferences command
+#[derive(Args, Clone)]
+pub struct UpdateOutreachPreferenceArgs {
+    /// Whether the user is okay with us reaching out by email to inform about developments at deSEC
+    #[arg(index = 1, action = ArgAction::Set)]
+    pub outreach_preference: bool,
 }
 
 #[derive(Args, Clone)]
