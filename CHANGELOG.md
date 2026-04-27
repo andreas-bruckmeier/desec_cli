@@ -1,5 +1,13 @@
 # Changelog
 
+## desec_cli 0.3.0 (2026-04-27)
+
+### Changed
+
+- Bumped dep versions
+- Updated desec_api to 0.5.0
+- Add commands for password reset and updating outreach preference
+
 ## desec_cli 0.2.2 (2026-03-31)
 
 ### Changed
