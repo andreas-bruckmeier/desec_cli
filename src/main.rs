@@ -298,71 +298,76 @@ async fn request_password_reset(args: &RequestPasswordResetArgs) -> ExitCode {
         .await
     {
         Ok(_) => {
-            println!("You should receive an email in your mailbox {} if such an account exists", &args.email);
+            println!(
+                "You should receive an email in your mailbox {} if such an account exists",
+                &args.email
+            );
         }
         Err(Error::ReqwestClientBuilder(e)) => {
             eprintln!("Failed to build the request: {e}");
-            return ExitCode::FAILURE
-
+            return ExitCode::FAILURE;
         }
         Err(Error::ApiError(e, m)) => {
             eprintln!("The API responded with error: {e} {m}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
         Err(e) => {
             eprintln!("An unexpected error occurred: {e}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
     }
     ExitCode::SUCCESS
 }
 
 async fn confirm_password_reset(args: &ConfirmPasswordResetArgs) -> ExitCode {
-    match account::confirm_password_reset(&args.password, &args.code)
-        .await
-    {
+    match account::confirm_password_reset(&args.password, &args.code).await {
         Ok(_) => {
             println!("Your password has successfully been set to the given password");
         }
         Err(Error::ReqwestClientBuilder(e)) => {
             eprintln!("Failed to build the request: {e}");
-            return ExitCode::FAILURE
-
+            return ExitCode::FAILURE;
         }
         Err(Error::ApiError(e, m)) => {
             eprintln!("The API responded with error: {e} {m}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
         Err(e) => {
             eprintln!("An unexpected error occurred: {e}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
     }
     ExitCode::SUCCESS
 }
 
-async fn update_outreach_preference(client: &Client, args: &UpdateOutreachPreferenceArgs) -> ExitCode {
-    let account_info = match client.account().update_outreach_preference(args.outreach_preference).await {
+async fn update_outreach_preference(
+    client: &Client,
+    args: &UpdateOutreachPreferenceArgs,
+) -> ExitCode {
+    let account_info = match client
+        .account()
+        .update_outreach_preference(args.outreach_preference)
+        .await
+    {
         Ok(info) => info,
         Err(Error::ReqwestClientBuilder(e)) => {
             eprintln!("Failed to build the request: {e}");
-            return ExitCode::FAILURE
-
+            return ExitCode::FAILURE;
         }
         Err(Error::ApiError(e, m)) => {
             eprintln!("The API responded with error: {e} {m}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
         Err(e) => {
             eprintln!("An unexpected error occurred: {e}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
     };
     let account_info_json = match serde_json::to_string(&account_info) {
         Ok(json) => json,
         Err(error) => {
             eprintln!("Failed to parse the API response: {error}");
-            return ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
     };
     println!("{account_info_json}");
